@@ -1,9 +1,13 @@
 /*
-///////////////////////////////////////
-//  Author: Momcilo Milic            //
-//  Web: www.MMkernel.com            //
-//  Email: momcilo.milic@gmail.com   //
-///////////////////////////////////////
+///////////////////////////////////////////////////////
+//                                                   //
+//  Author: Momcilo Milic                            //
+//  Web: www.MMkernel.com                            //
+//  Email: momcilo.milic@gmail.com                   //
+//  Github: https://github.com/mmkernel              //
+//  Linkedin: https://www.linkedin.com/in/mmkernel/  //
+//                                                   //
+///////////////////////////////////////////////////////
 */
 
 @import url(./fonts.css);
@@ -19,7 +23,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #dddfeb;
+  flex-direction: column;
+  background: #dcdce4;
 }
 
 .container {
@@ -29,7 +34,7 @@ body {
   background: #25272e;
   padding: 30px;
   overflow: hidden;
-  border-radius: 3px;
+  border-radius: 10px 10px 0 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 .yourNameDiv {
@@ -60,13 +65,16 @@ body {
   text-align: center;
   font-size: 40px;
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 .welcome {
   text-align: center;
-  font-size: 30px;
+  font-size: 24px;
   color: #fff;
   margin-bottom: 50px;
+}
+.scoringTitle {
+  margin-bottom: 10px !important;
 }
 label {
   display: block;
@@ -115,7 +123,7 @@ select {
   height: 100%;
   border-radius: 30px;
   overflow: hidden;
-  background: linear-gradient(to right, #0408ff, #9af7ff);
+  background: linear-gradient(to right, #2c4c90, #253a66);
   transition: 1s linear;
 }
 .timer .progress .progress-text {
@@ -196,7 +204,7 @@ select {
 .btn {
   width: 100%;
   height: 60px;
-  background: #0c80ef;
+  background: #3d8fdc;
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -215,6 +223,37 @@ select {
 .btn.next {
   display: none;
 }
+.restart {
+  height: 35px;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+.scoring-list{
+  margin-bottom: 15px;
+}
+.tableScoringList {
+  border-collapse: collapse;
+  color: white;
+  margin-bottom: 15px;
+  overflow-y: auto;
+  max-height: 250px;
+  display: block;
+}
+.tableScoringList th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #0c80ef;
+  padding: 10px;
+  min-width: 150px;
+  color: white;
+}
+.tableScoringList td, .tableScoringList th {
+  border: 1px solid #cfcfcf;
+  padding: 5px;
+}
+.tableScoringList tr:nth-child(even){background-color: #41434b;}
+.tableScoringList tr:hover {background-color: #09467f;}
 
 .end-screen .score {
   color: #fff;
@@ -234,8 +273,8 @@ select {
   text-align: center;
   width: 100%;
   max-width: 600px;
-  border-radius: 2px 2px 0 0;
-  position: absolute;
+  margin-top: 5px;
+  border-radius: 0 0 10px 10px;
   background-color: #25272e;
   bottom: 0;
   font-size: 12px;
@@ -248,8 +287,17 @@ select {
 
 @media (max-width: 468px) {
   .container {
-    min-height: 100vh;
+    min-height: 96vh;
     max-width: 100%;
     border-radius: 0;
+  }
+  .answer-wrapper .answer {
+    height: 80px;
+  }
+  .tableScoringList th {
+    min-width: 100px;    
+  }
+  .tableScoringList {
+    max-height: 550px;
   }
 }

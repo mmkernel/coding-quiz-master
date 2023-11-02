@@ -1,25 +1,20 @@
 "use strict";
 import dom from "./dom.js";
+import {scoringList, scoringListClickHandler} from "./results.js";
 
 // CONSTANTS AND VARIABLES ------------------------------------------------------------
-let questions = [], time = 0, score = 0, points = 0, currentQuestion, timer, playerName = "";
+let questions = [], time = 0, score = 0,  currentQuestion, timer, results, audio;
+export let points = 0;
+export let playerName = "";
+export let selectedTableName;
 const timePerQ = [10, 20, 30, 50, 60];
 const container = dom.$(".container");
 const progressBar = dom.$(".progress-bar");
 const progressText = dom.$(".progress-text");
-const startBtn = dom.$(".start");
-//const timePerQuestion = dom.$("#time");
 const quiz = dom.$(".quiz");
 const startScreen = dom.$(".start-screen");
 const welcome = dom.$(".welcome");
 const settings = dom.$(".settings");
-
-// PROGRESS FUNCTION ----------------------------------------------------------------
-const progress = value => {
-  const percentage = (value / time) * 100;
-  progressBar.style.width = `${percentage}%`;
-  progressText.innerHTML = `${value}`;
-};
 
 // START RENDER ELEMENTS --------------------------------------------------------------
 const welcomeElements = () => {
@@ -27,40 +22,46 @@ const welcomeElements = () => {
     type: "div",
     parent: container,
     classes: ["yourNameDiv"],
-  });
+  })
+  dom.create({
+    type: "h2",
+    content: "CODING MASTER",
+    parent: yourNameDiv,
+    classes: ["heading"]
+  })
   dom.create({
     type: "input",
     parent: yourNameDiv,
     classes: ["yourName"],
-    attr: { name: "playerName", placeholder: "Player name.." },
-  }),
-    dom.create({
-      type: "button",
-      parent: yourNameDiv,
-      content: "Enter your name",
-      classes: ["btn", "yourNameBtn"],
-    })
+    attr: { name: "playerName", placeholder: "Player name.." }
+  })
+  dom.create({
+    type: "button",
+    parent: yourNameDiv,
+    content: "Enter your name",
+    classes: ["btn", "yourNameBtn"]
+  })
 }
-if (playerName == "") welcomeElements();
+welcomeElements();
 
 const renderElements = () => {
     dom.create({
       type: "label",
       parent: settings,
       content: "Choose a program language:"
-    }),
+    });
     dom.create({
       type: "select",
       parent: settings,
-      content: "Program language:",
+      //content: "Program language:",
       classes: ['category']
-    }),
+    });
     dom.create({
       type: "label",
       parent: settings,
       content: "Select time per question:",
       attr: {for: 'time'}
-    }),
+    });
     dom.create({
       type: "select",
       parent: settings,
@@ -82,13 +83,20 @@ renderElements();
 fetch("/tables")
   .then((response) => response.json())
   .then((data) => {
-    //console.log(data);
+    // console.log(data);
     const selectElement = dom.$(".category");
-    data.tables.forEach((tableName) => {
-      const option = document.createElement("option");
-      option.value = tableName;
-      option.text = tableName;
-      selectElement.appendChild(option);
+
+    // FILTER OUT THE "scoringlist" TABLE FROM PROGRAM LANGUAGES SELECT ELEMENT
+    const tableNames = data.tables.filter((tableName) => tableName !== "scoringlist");
+    console.log(tableNames);
+
+    tableNames.forEach((tableName) => {
+      dom.create({
+        type: "option",
+        attr: {value: tableName},
+        content: tableName.toUpperCase(),
+        parent: selectElement
+      })
     });
   })
   .catch((error) => {
@@ -96,38 +104,49 @@ fetch("/tables")
   });
 
 // END FETCHING THE TABLE NAMES FOR SELECT ELEMENT -------------------------------------
+const tableSelect = dom.$('.category');
+tableSelect.addEventListener('change', () => {
+  selectedTableName = tableSelect.value;
+
+  fetch(`/tables/${selectedTableName}`)
+    .then(response => response.json())
+    .then(data => {
+      //console.log(data.data[0].doc.incorrect_answers);
+      results = data.data;
+      
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+});
+
 
 const goToStart = () => {
   let userName = dom.$(".yourName");
   playerName = userName.value;
-  // console.log(userName);
-  welcome.innerHTML = `Welcome ${playerName}!`;
-  dom.$(".yourNameDiv").style.display = "none";
+  if (playerName.length === 0) {
+    dom.$(".yourName").style.border = "3px solid red";
+  } else {
+    welcome.innerHTML = `Welcome ${playerName}!<br>Let's test your skills...`;
+    dom.$(".yourNameDiv").style.display = "none";
+  }
 };
 const yourNameBtn = dom.$(".yourNameBtn");
 yourNameBtn.addEventListener("click", goToStart);
 
 // START LOADING QUESTIONS FROM DB ----------------------------------------------------------------
-
-const loadContents = () => {
-  return fetch("/load_contents")
-    .then((res) => res.json())
-    .then((res) => {
-      console.log(res);
-      if (res.status == "ok") {
-        return res.data;
-      } else {
-        throw res.err;
-      }
-    });
-};
-
 const startQuiz = () => {
-  loadingAnimation();
+  // CONVERTING THE DATA TO NEW OBJECT WITHOUT DOC
+  const transformedData = results.map(item => ({
+    category: item.doc.category,
+    question: item.doc.question,
+    correct_answer: item.doc.correct_answer,
+    incorrect_answers: item.doc.incorrect_answers
+  }));
+  //console.log(transformedData);
 
-  questions = results;
+  questions = transformedData;
   console.log(questions);
-  console.log(questions[0]);
   setTimeout(() => {
     startScreen.classList.add("hide");
     quiz.classList.remove("hide");
@@ -136,20 +155,31 @@ const startQuiz = () => {
   }, 1000);
 };
 
+const startBtn = dom.create({
+  type: "button",
+  parent: startScreen,
+  content: "Start Quiz",
+  classes: ["btn", "start"]
+});
+
 startBtn.addEventListener("click", startQuiz);
 
+// PROGRESS FUNCTION ----------------------------------------------------------------
+const progress = val => {
+  const percentage = (val / time) * 100;
+  progressBar.style.width = `${percentage}%`;
+  progressText.innerHTML = `${val}`;
+};
+
 // START QUIZ QUESTIONS ----------------------------------------------------------------
-const showQuestion = (question) => {
-  const questionText = document.querySelector(".question");
-  const answersWrapper = document.querySelector(".answer-wrapper");
-  const questionNumber = document.querySelector(".number");
+const showQuestion = question => {
+  const questionText = dom.$(".question");
+  const answersWrapper = dom.$(".answer-wrapper");
+  const questionNumber = dom.$(".number");
 
   questionText.innerHTML = question.question;
 
-  const answers = [
-    ...question.incorrect_answers,
-    question.correct_answer.toString(),
-  ];
+  const answers = [...question.incorrect_answers, question.correct_answer.toString(), ];
   answersWrapper.innerHTML = "";
   answers.sort(() => Math.random() - 0.5);
   answers.forEach((answer) => {
@@ -162,13 +192,13 @@ const showQuestion = (question) => {
           </div>
         `;
   });
-
-  questionNumber.innerHTML = ` Question <span class="current">${
+  
+  questionNumber.innerHTML = `${selectedTableName.toUpperCase()}: Question <span class="current">${
     questions.indexOf(question) + 1
   }</span>
             <span class="total">/${questions.length}</span>`;
   //add event listener to each answer
-  const answersDiv = document.querySelectorAll(".answer");
+  const answersDiv = dom.$$(".answer");
   answersDiv.forEach((answer) => {
     answer.addEventListener("click", () => {
       if (!answer.classList.contains("checked")) {
@@ -191,7 +221,7 @@ const showQuestion = (question) => {
 const startTimer = time => {
   timer = setInterval(() => {
     if (time === 3) {
-      playAdudio("./assets/countdown.mp3");
+      playAudio("./assets/countdown.mp3");
     }
     if (time >= 0) {
       progress(time);
@@ -202,33 +232,37 @@ const startTimer = time => {
   }, 1000);
 };
 
-const loadingAnimation = () => {
-  startBtn.innerHTML = "Loading";
-  const loadingInterval = setInterval(() => {
-    if (startBtn.innerHTML.length === 10) {
-      startBtn.innerHTML = "Loading";
-    } else {
-      startBtn.innerHTML += ".";
-    }
-  }, 500);
-};
+
 // END START TIMER & ANIMATION FUNCTION ----------------------------------------------------------------^
 
-// CREATED BY FUNCTION ---------------------------------------------------------------------------------
+// CREATED BY  -----------------------------------------------------------------------------------------
 const createdBy = () => {
-  let copyright = document.createElement("div");
-  copyright.innerHTML =
-    "A Project By <a href='https://www.mmkernel.com' target=_blank><strong>Momcilo Milic</strong></a>";
-  copyright.className = "copyright";
-  document.body.appendChild(copyright);
+  dom.create({
+    type: "div",
+    content: "A Project By <a href='https://www.mmkernel.com' target=_blank><strong>Momcilo Milic</strong></a>",
+    classes: ['copyright'],
+    parent: document.body
+  })
+
 };
 createdBy();
-// END CREATED BY FUNCTION -------------------------------------------------------------------------------^
+// END CREATED BY ---------------------------------------------------------------------------------------^
+const submitBtn = dom.create({
+  type: "button",
+  parent: quiz,
+  content: "Submit",
+  classes: ["btn", "submit"]
+});
+const nextBtn = dom.create({
+  type: "button",
+  parent: quiz,
+  content: "Next",
+  classes: ["btn", "next"]
+});
 
-const submitBtn = document.querySelector(".submit");
-const nextBtn = document.querySelector(".next");
 submitBtn.addEventListener("click", () => {
   checkAnswer();
+  stopAudio();
 });
 
 nextBtn.addEventListener("click", () => {
@@ -240,7 +274,7 @@ nextBtn.addEventListener("click", () => {
 // CHECK ANSWER ----------------------------------------------------------------
 const checkAnswer = () => {
   clearInterval(timer);
-  const selectedAnswer = document.querySelector(".answer.selected");
+  const selectedAnswer = dom.$(".answer.selected");
   if (selectedAnswer) {
     const answer = selectedAnswer.querySelector(".text").innerHTML;
     console.log(currentQuestion);
@@ -249,9 +283,7 @@ const checkAnswer = () => {
       selectedAnswer.classList.add("correct");
     } else {
       selectedAnswer.classList.add("wrong");
-      const correctAnswer = document
-        .querySelectorAll(".answer")
-        .forEach((answer) => {
+      dom.$$(".answer").forEach((answer) => {
           if (
             answer.querySelector(".text").innerHTML ===
             questions[currentQuestion - 1].correct_answer
@@ -261,9 +293,7 @@ const checkAnswer = () => {
         });
     }
   } else {
-    const correctAnswer = document
-      .querySelectorAll(".answer")
-      .forEach((answer) => {
+      dom.$$(".answer").forEach((answer) => {
         if (
           answer.querySelector(".text").innerHTML ===
           questions[currentQuestion - 1].correct_answer
@@ -272,7 +302,7 @@ const checkAnswer = () => {
         }
       });
   }
-  const answersDiv = document.querySelectorAll(".answer");
+  const answersDiv = dom.$$(".answer");
   answersDiv.forEach((answer) => {
     answer.classList.add("checked");
   });
@@ -292,9 +322,9 @@ const nextQuestion = () => {
 // END CHECK ANSWER -------------------------------------------------------------------
 
 // START SHOWING RESULTS ----------------------------------------------------------------
-const endScreen = document.querySelector(".end-screen"),
-  finalScore = document.querySelector(".final-score"),
-  totalScore = document.querySelector(".total-score"),
+const endScreen = dom.$(".end-screen"),
+  finalScore = dom.$(".final-score"),
+  totalScore = dom.$(".total-score"),
   totalPoints = dom.$(".total-points");
 const showScore = () => {
   endScreen.classList.remove("hide");
@@ -304,24 +334,28 @@ const showScore = () => {
   finalScore.innerHTML = score;
   totalScore.innerHTML = `/ ${questions.length}`;
   if (points >= 20) {
-    totalPoints.innerHTML = `Great job ${playerName}!<br>You've scored: ${points}`;
+    totalPoints.innerHTML = `Great job ${playerName}!<br>You've scored: ${points} 🔥 points!`;
   } else if (points >= 10) {
-    totalPoints.innerHTML = `Not bad ${playerName}<br> You've scored ${points} points!`;
+    totalPoints.innerHTML = `You can do it better ${playerName} 🧐<br> You've scored ${points} points!`;
   } else if ((points == 5)) {
-    totalPoints.innerHTML = `${playerName} you've scored just<br>${points} points :'(`;
+    totalPoints.innerHTML = `${playerName} you've scored just<br>${points} points 🫣`;
   } else {
-    totalPoints.innerHTML = `You have to learn ${playerName}! You didn't score any points`;
+    totalPoints.innerHTML = `You have to learn ${playerName}!<br>You didn't score any points 😬`;
   }
 };
+// END SHOWING RESULTS --------------------------------------------------------------------------------
 
-const restartBtn = document.querySelector(".restart");
-restartBtn.addEventListener("click", () => {
-  window.location.reload();
-  console.log(playerName);
-});
+// SCORING LIST EVENT LISTENER ------------------------------------------------------------------------
+scoringList.addEventListener("click", scoringListClickHandler );
 
-const playAdudio = (src) => {
-  const audio = new Audio(src);
+
+// PLAY & STOP COUNTDOWN FUNCTION ----------------------------------------------------------------------
+const playAudio = (src) => {
+  if (audio) audio.pause(); 
+  audio = new Audio(src);
   audio.play();
 };
-// END SHOWING RESULTS ----------------------------------------------------------------
+
+const stopAudio = () => {
+  if (audio) audio.pause();
+};

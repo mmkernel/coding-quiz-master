@@ -7,20 +7,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
   <link rel="stylesheet" href="./assets/css/style.css" />
-  <title>Codding Quiz for Programmers</title>
-  <script src="assets/js/data_js.js"></script>
-  <script src="assets/js/filling_dom.js"></script>
+  <title>Coding Quiz Master</title>
+  <link rel="icon" href="./assets/img/favicon.ico" />
   <script src="assets/js/index.js" type="module" defer></script>
 </head>
 
 <body>
   <div class="container">
     <div class="start-screen">
-      <h1 class="heading">CODDING QUIZ GAME</h1>
-      <h2 class="welcome"></h2>
+      <h1 class="heading">CODING MASTER</h1>
+      <h3 class="welcome"></h3>
       <div class="settings">
       </div>
-      <button class="btn start">Start Quiz</button>
+      <!-- <button class="btn start">Start Quiz</button> -->
     </div>
     <div class="quiz hide">
       <div class="timer">
@@ -31,32 +30,29 @@
       </div>
       <div class="question-wrapper">
         <div class="number">
-          Question <span class="current">1</span><span class="total">/10</span>
+          <span class="current">1</span><span class="total"></span>
         </div>
-        <div class="question">This is a question This is a question?</div>
+        <div class="question"></div>
       </div>
       <div class="answer-wrapper">
         <div class="answer selected">
-          <span class="text">answer</span>
+          <span class="text"></span>
           <span class="checkbox">
             <i class="fas fa-check"></i>
           </span>
         </div>
       </div>
-      <button class="btn submit" disabled>Submit</button>
-      <button class="btn next">Next</button>
     </div>
     <div class="end-screen hide">
       <h2 class="heading">Results</h2>
       <div class="score">
-        <span class="score-text">Your score:</span>
+        <span class="score-text"></span>
         <div>
-          <span class="final-score">0</span>
-          <span class="total-score">/10</span>
-          <p class="total-points">0</p>
+          <span class="final-score"></span>
+          <span class="total-score"></span>
+          <p class="total-points"></p>
         </div>
       </div>
-      <button class="btn restart">Restart Quiz</button>
     </div>
   </div>
 </body>
