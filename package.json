@@ -13,6 +13,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "formidable": "^3.5.1",
-    "nano": "^10.1.2"
+    "nano": "^10.1.2",
+    "open": "^9.1.0"
   }
 }

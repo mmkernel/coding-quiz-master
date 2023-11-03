@@ -37,6 +37,7 @@ body {
   border-radius: 10px 10px 0 0;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
+
 .yourNameDiv {
   display: flex;
   align-items: center; justify-content: center; flex-direction: column;
@@ -243,7 +244,7 @@ select {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #0c80ef;
+  background-color: #3d8fdc;
   padding: 10px;
   min-width: 150px;
   color: white;

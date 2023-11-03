@@ -53,7 +53,6 @@ const renderElements = () => {
     dom.create({
       type: "select",
       parent: settings,
-      //content: "Program language:",
       classes: ['category']
     });
     dom.create({
@@ -247,6 +246,7 @@ const createdBy = () => {
 };
 createdBy();
 // END CREATED BY ---------------------------------------------------------------------------------------^
+
 const submitBtn = dom.create({
   type: "button",
   parent: quiz,
@@ -322,10 +322,10 @@ const nextQuestion = () => {
 // END CHECK ANSWER -------------------------------------------------------------------
 
 // START SHOWING RESULTS ----------------------------------------------------------------
-const endScreen = dom.$(".end-screen"),
-  finalScore = dom.$(".final-score"),
-  totalScore = dom.$(".total-score"),
-  totalPoints = dom.$(".total-points");
+const endScreen = dom.$(".end-screen");
+const finalScore = dom.$(".final-score");
+const totalScore = dom.$(".total-score");
+const totalPoints = dom.$(".total-points");
 const showScore = () => {
   endScreen.classList.remove("hide");
   quiz.classList.add("hide");

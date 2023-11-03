@@ -3,6 +3,7 @@
 import express from 'express';
 import nano from 'nano';
 import settings from './settings.js';
+import open from 'open';
 
 // CONSTANTS & VARIABLES
 const PORT = 3000;
@@ -33,7 +34,7 @@ const init = () => {
     server.get(`/tables/:tableName`, (req, res) => {
         const { tableName }  = req.params;
         const selectedTable = db.use(tableName);
-        console.log(selectedTable);
+        console.log(res.req.url);
         selectedTable.list({ include_docs: true }, (err, body) => {
         if (err) {
             console.error(err);
@@ -73,6 +74,7 @@ const init = () => {
     
     
     server.listen(PORT, err => console.log(err || `Server is running on port => ${PORT}`));
+    open('http://localhost:3000/', {wait: true});
 
 }
 
