@@ -1,8 +1,8 @@
 'use strict';
 
 const settings = {
-    "u": "admin",
-    "p": "kaskaval"
+    "u": "your_username",
+    "p": "your_password"
 }
 
 export default settings;
